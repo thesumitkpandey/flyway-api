@@ -3,7 +3,10 @@ package com.flywaytravels.airport;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import com.flywaytravels.exception.CustomException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,9 +21,14 @@ public class AirportService {
     }
 
     public List<AirportResponseDTO> searchAirports(String keyword) {
-
+        if (keyword == null || keyword.trim().isEmpty()) {
+            throw new CustomException(
+                    "INVALID_SEARCH",
+                    "Invalid Search Keyword",
+                    HttpStatus.BAD_REQUEST);
+        }
         List<AirportEntity> airportResults = airportRepository.search(keyword);
-        
+
         List<AirportResponseDTO> airports = new ArrayList<>();
         for (AirportEntity airport : airportResults) {
             AirportResponseDTO dto = new AirportResponseDTO();
