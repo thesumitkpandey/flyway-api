@@ -1,4 +1,4 @@
-package com.flywaytravels.service;
+package com.flyway.service;
 
 import java.time.Instant;
 import java.util.Map;
