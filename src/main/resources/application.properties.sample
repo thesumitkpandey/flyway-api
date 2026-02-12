@@ -1,0 +1,12 @@
+spring.application.name=flyway
+
+
+spring.datasource.url=jdbc:postgresql://localhost:1234/postgres
+spring.datasource.username=postgres
+spring.datasource.password=securedaccess
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+
+
+amadeus.client-id=
+amadeus.client-secret=
