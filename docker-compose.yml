@@ -1,21 +1,37 @@
 version: "3.9"
 
 services:
-  db:
+  flyway-db:
     image: postgres:16
     container_name: flyway-db
-    restart: unless-stopped
-
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: securedaccess
-
     ports:
       - "1234:5432"
-
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  flyway-api:
+    container_name: flyway-api
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - flyway-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://flyway-db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: securedaccess
+
+  # flyway-web:
+  #   container_name: flyway-web
+  #   build: ../flyway-web
+  #   ports:
+  #     - "5173:5173"
+  #   depends_on:
+  #     - flyway-api
 
 volumes:
   postgres_data:
