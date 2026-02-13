@@ -13,24 +13,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-flyway-api:
-  container_name: flyway-api
-  build: .
-  ports:
-    - "8080:8080"
-  depends_on:
-    - flyway-db
-  env_file:
-    - .env
-
-
-  # flyway-web:
-  #   container_name: flyway-web
-  #   build: ../flyway-web
-  #   ports:
-  #     - "5173:5173"
-  #   depends_on:
-  #     - flyway-api
+  flyway-api:
+    container_name: flyway-api
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - flyway-db
+    env_file:
+      - .env
 
 volumes:
   postgres_data:
