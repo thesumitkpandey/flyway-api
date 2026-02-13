@@ -38,5 +38,4 @@ out/
 .env
 
 # Spring Boot secrets
-src/main/resources/application.properties
 gradle.properties

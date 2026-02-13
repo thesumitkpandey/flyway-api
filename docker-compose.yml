@@ -20,10 +20,6 @@ services:
       - "8080:8080"
     depends_on:
       - flyway-db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://flyway-db:5432/postgres
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: securedaccess
 
   # flyway-web:
   #   container_name: flyway-web
