@@ -23,5 +23,14 @@ services:
     env_file:
       - .env
 
+  flyway-web:
+    container_name: flyway-web
+    build: ../flyway-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - flyway-api
+
+
 volumes:
   postgres_data:
