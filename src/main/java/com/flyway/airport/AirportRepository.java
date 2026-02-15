@@ -14,7 +14,6 @@ public interface AirportRepository extends JpaRepository<AirportEntity, Long> {
    SELECT a FROM AirportEntity a
    WHERE LOWER(a.iataCode) LIKE LOWER(CONCAT('%', :q, '%'))
       OR LOWER(a.cityName) LIKE LOWER(CONCAT('%', :q, '%'))
-      OR LOWER(a.airportName) LIKE LOWER(CONCAT('%', :q, '%'))
 """)
 List<AirportEntity> search(@Param("q") String q);
 
