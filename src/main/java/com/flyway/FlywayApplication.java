@@ -1,4 +1,4 @@
-package com.flywaytravels;
+package com.flyway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class FlywaytravelsApplication {
+public class FlywayApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlywaytravelsApplication.class, args);
+		SpringApplication.run(FlywayApplication.class, args);
 	}
 
 }

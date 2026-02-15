@@ -1,4 +1,4 @@
-package com.flywaytravels.airport;
+package com.flyway.airport;
 
 
 import jakarta.persistence.*;

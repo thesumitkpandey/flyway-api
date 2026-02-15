@@ -1,10 +1,10 @@
-package com.flywaytravels;
+package com.flyway;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FlywaytravelsApplicationTests {
+class flywayApplicationTests {
 
 	@Test
 	void contextLoads() {

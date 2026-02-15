@@ -1,4 +1,4 @@
-package com.flywaytravels.exception;
+package com.flyway.exception;
 
 import org.springframework.http.HttpStatus;
 

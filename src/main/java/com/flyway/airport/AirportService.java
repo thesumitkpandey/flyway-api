@@ -1,4 +1,4 @@
-package com.flywaytravels.airport;
+package com.flyway.airport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.flywaytravels.exception.CustomException;
+import com.flyway.exception.CustomException;
 
 import lombok.extern.slf4j.Slf4j;
 
