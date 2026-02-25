@@ -14,7 +14,7 @@ public class SearchController {
         this.searchService = searchService;
     }
     @PostMapping("/api/flights/search")
-    public String postMethodName(@RequestBody SearchRequestDTO requestBody) {
+    public SearchResponseDTO postMethodName(@RequestBody SearchRequestDTO requestBody) {
         return this.searchService.searchFlights(requestBody);
     }
 }

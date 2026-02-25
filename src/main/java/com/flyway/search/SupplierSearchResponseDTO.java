@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SupplierResponseDTO {
+public class SupplierSearchResponseDTO {
 
     private DataWrapper data;
 
@@ -55,22 +55,26 @@ public class SupplierResponseDTO {
         private Location destination;
     }
 
-    @Data
-    public static class Segment {
-        private String id;
-        private String departing_at;
-        private String arriving_at;
-        private String duration;
-        private String distance;
+@Data
+public static class Segment {
 
-        private Carrier operating_carrier;
-        private Carrier marketing_carrier;
+    private String id;
+    private String departing_at;
+    private String arriving_at;
+    private String duration;
+    private String distance;
 
-        private Location origin;
-        private Location destination;
+    private String marketing_carrier_flight_number;   // ADD THIS
+    private String operating_carrier_flight_number;   // ADD THIS
 
-        private List<SegmentPassenger> passengers;
-    }
+    private Carrier operating_carrier;
+    private Carrier marketing_carrier;
+
+    private Location origin;
+    private Location destination;
+
+    private List<SegmentPassenger> passengers;
+}
 
     @Data
     public static class Carrier {
