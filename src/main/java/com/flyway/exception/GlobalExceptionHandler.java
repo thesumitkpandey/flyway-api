@@ -24,16 +24,4 @@ public class GlobalExceptionHandler {
                                 .body(response);
         }
 
-        @ExceptionHandler(Exception.class)
-        public ResponseEntity<CustomErrorResponse> handleUnknownExceptions(Exception ex) {
-                log.error("Unexpected error occurred", ex);
-                CustomErrorResponse response = new CustomErrorResponse(
-                                false,
-                                "INTERNAL_ERROR",
-                                "An unexpected error occurred");
-
-                return ResponseEntity
-                                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(response);
-        }
 }
