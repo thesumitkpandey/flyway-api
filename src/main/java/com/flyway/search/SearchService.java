@@ -1,5 +1,6 @@
 package com.flyway.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -20,33 +21,32 @@ public class SearchService {
         this.duffelWebClient = duffelWebClient;
     }
 
-public SearchResponseDTO searchFlights(SearchRequestDTO request) {
+    public SearchResponseDTO searchFlights(SearchRequestDTO request) {
 
-    SupplierSearchRequestDTO supplierPayload = createSupplierRequestPayload(request);
+        SupplierSearchRequestDTO supplierPayload = createSupplierRequestPayload(request);
 
-    try {
+        try {
 
-        SupplierSearchResponseDTO supplierResponse =
-                duffelWebClient
-                        .post()
-                        .uri("/air/offer_requests")
-                        .header("Duffel-Version", "v2")
-                        .header("Content-Type", "application/json")
-                        .bodyValue(supplierPayload)
-                        .retrieve()
-                        .bodyToMono(SupplierSearchResponseDTO.class)
-                        .block();
+            SupplierSearchResponseDTO supplierResponse = duffelWebClient
+                    .post()
+                    .uri("/air/offer_requests")
+                    .header("Duffel-Version", "v2")
+                    .header("Content-Type", "application/json")
+                    .bodyValue(supplierPayload)
+                    .retrieve()
+                    .bodyToMono(SupplierSearchResponseDTO.class)
+                    .block();
 
-        return mapToInternalResponse(supplierResponse);
+            return mapToInternalResponse(supplierResponse);
 
-    } catch (Exception ex) {
+        } catch (Exception ex) {
 
-        throw new CustomException(
-                "SUPPLIER_ERROR",
-                "Failed to fetch flight offers from supplier",
-                HttpStatus.BAD_GATEWAY);
+            throw new CustomException(
+                    "SUPPLIER_ERROR",
+                    "Failed to fetch flight offers from supplier",
+                    HttpStatus.BAD_GATEWAY);
+        }
     }
-}
 
     public SupplierSearchRequestDTO createSupplierRequestPayload(SearchRequestDTO request) {
 
@@ -114,51 +114,178 @@ public SearchResponseDTO searchFlights(SearchRequestDTO request) {
 
     private SearchResponseDTO mapToInternalResponse(SupplierSearchResponseDTO supplier) {
 
-    SearchResponseDTO response = new SearchResponseDTO();
-    List<SearchResponseDTO.FlightOffer> offers = new java.util.ArrayList<>();
+        SearchResponseDTO response = new SearchResponseDTO();
+        List<SearchResponseDTO.FlightOffer> internalOffers = new ArrayList<>();
 
-    if (supplier == null || supplier.getData() == null) {
-        response.setOffers(offers);
+        if (supplier == null
+                || supplier.getData() == null
+                || supplier.getData().getOffers() == null) {
+
+            response.setOffers(internalOffers);
+            return response;
+        }
+
+        for (var offer : supplier.getData().getOffers()) {
+
+            SearchResponseDTO.FlightOffer internalOffer = new SearchResponseDTO.FlightOffer();
+
+            internalOffer.setOfferId(offer.getId());
+
+            // ---------------- Price ----------------
+            if (offer.getTotal_amount() != null) {
+                internalOffer.setTotalAmount(
+                        Double.parseDouble(offer.getTotal_amount()));
+            }
+
+            internalOffer.setCurrency(offer.getTotal_currency());
+            internalOffer.setExpiresAt(offer.getExpires_at());
+
+            // ---------------- Passenger Summary ----------------
+            SearchResponseDTO.PassengerSummary passengerSummary = new SearchResponseDTO.PassengerSummary();
+
+            int adults = 0;
+            int children = 0;
+            int infants = 0;
+
+            if (offer.getPassengers() != null) {
+                for (var p : offer.getPassengers()) {
+
+                    switch (p.getType()) {
+                        case "adult":
+                            adults++;
+                            break;
+                        case "child":
+                            children++;
+                            break;
+                        case "infant":
+                        case "infant_without_seat":
+                            infants++;
+                            break;
+                    }
+                }
+            }
+
+            passengerSummary.setAdults(adults);
+            passengerSummary.setChildren(children);
+            passengerSummary.setInfants(infants);
+
+            internalOffer.setPassengerSummary(passengerSummary);
+
+            // ---------------- Conditions ----------------
+            if (offer.getConditions() != null) {
+
+                if (offer.getConditions().getRefund_before_departure() != null) {
+                    internalOffer.setRefundable(
+                            offer.getConditions()
+                                    .getRefund_before_departure()
+                                    .getAllowed());
+                }
+
+                if (offer.getConditions().getChange_before_departure() != null) {
+                    internalOffer.setChangeAllowed(
+                            offer.getConditions()
+                                    .getChange_before_departure()
+                                    .getAllowed());
+                }
+            }
+
+            // ---------------- Slices ----------------
+            List<SearchResponseDTO.Slice> internalSlices = new ArrayList<>();
+
+            if (offer.getSlices() != null) {
+
+                for (var slice : offer.getSlices()) {
+
+                    SearchResponseDTO.Slice internalSlice = new SearchResponseDTO.Slice();
+
+                    if (slice.getOrigin() != null)
+                        internalSlice.setOrigin(slice.getOrigin().getIata_code());
+
+                    if (slice.getDestination() != null)
+                        internalSlice.setDestination(slice.getDestination().getIata_code());
+
+                    internalSlice.setDuration(formatDuration(slice.getDuration()));
+                    // ---------------- Segments ----------------
+                    List<SearchResponseDTO.Segment> internalSegments = new ArrayList<>();
+
+                    if (slice.getSegments() != null) {
+
+                        for (var segment : slice.getSegments()) {
+
+                            SearchResponseDTO.Segment internalSegment = new SearchResponseDTO.Segment();
+
+                            // Airline
+                            if (segment.getMarketing_carrier() != null) {
+
+                                SearchResponseDTO.AirlineDetail airline = new SearchResponseDTO.AirlineDetail();
+
+                                airline.setName(
+                                        segment.getMarketing_carrier().getName());
+
+                                airline.setIataCode(
+                                        segment.getMarketing_carrier().getIata_code());
+
+                                airline.setLogo(
+                                        segment.getMarketing_carrier().getLogo_symbol_url());
+
+                                internalSegment.setAirlineDetail(airline);
+                            }
+
+                            internalSegment.setFlightNumber(
+                                    segment.getMarketing_carrier_flight_number());
+
+                            if (segment.getOrigin() != null)
+                                internalSegment.setOrigin(
+                                        segment.getOrigin().getIata_code());
+
+                            if (segment.getDestination() != null)
+                                internalSegment.setDestination(
+                                        segment.getDestination().getIata_code());
+
+                            internalSegment.setDepartureTime(
+                                    segment.getDeparting_at());
+
+                            internalSegment.setArrivalTime(
+                                    segment.getArriving_at());
+
+
+                            if (segment.getPassengers() != null
+                                    && !segment.getPassengers().isEmpty()) {
+
+                                internalSegment.setCabinClass(
+                                        segment.getPassengers()
+                                                .get(0)
+                                                .getCabin_class());
+                            }
+
+                            internalSegments.add(internalSegment);
+                        }
+                    }
+
+                    internalSlice.setSegments(internalSegments);
+                    internalSlices.add(internalSlice);
+                }
+            }
+
+            internalOffer.setSlices(internalSlices);
+
+            internalOffers.add(internalOffer);
+        }
+
+        response.setOffers(internalOffers);
         return response;
     }
 
-    for (var offer : supplier.getData().getOffers()) {
+    private String formatDuration(String isoDuration) {
 
-        var firstSlice = offer.getSlices().get(0);
-        var firstSegment = firstSlice.getSegments().get(0);
+        if (isoDuration == null)
+            return null;
 
-        SearchResponseDTO.FlightOffer internalOffer =
-                new SearchResponseDTO.FlightOffer();
+        java.time.Duration duration = java.time.Duration.parse(isoDuration);
 
-        internalOffer.setOfferId(offer.getId());
-        internalOffer.setAirline(firstSegment.getMarketing_carrier().getName());
-        internalOffer.setAirlineCode(firstSegment.getMarketing_carrier().getIata_code());
-        internalOffer.setFlightNumber(firstSegment.getMarketing_carrier_flight_number());
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
 
-        internalOffer.setOrigin(firstSegment.getOrigin().getIata_code());
-        internalOffer.setDestination(firstSegment.getDestination().getIata_code());
-
-        internalOffer.setDepartureTime(firstSegment.getDeparting_at());
-        internalOffer.setArrivalTime(firstSegment.getArriving_at());
-        internalOffer.setDuration(firstSegment.getDuration());
-
-        internalOffer.setCabinClass(
-                firstSegment.getPassengers().get(0).getCabin_class());
-
-        internalOffer.setTotalPrice(offer.getTotal_amount());
-        internalOffer.setCurrency(offer.getTotal_currency());
-
-        internalOffer.setRefundable(
-                offer.getConditions().getRefund_before_departure().getAllowed());
-
-        internalOffer.setChangeAllowed(
-                offer.getConditions().getChange_before_departure().getAllowed());
-
-        offers.add(internalOffer);
+        return hours + "h " + minutes + "m";
     }
-
-    response.setOffers(offers);
-    return response;
-}
-
 }

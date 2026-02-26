@@ -1,33 +1,75 @@
 package com.flyway.search;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public class SearchResponseDTO {
 
     private List<FlightOffer> offers;
 
-    @Data
+    @Getter
+    @Setter
     public static class FlightOffer {
+
         private String offerId;
-        private String airline;
-        private String airlineCode;
+        private double totalAmount;
+        private String currency;
+
+        private String expiresAt;
+
+        private List<Slice> slices;
+
+        private PassengerSummary passengerSummary;
+
+        private Boolean refundable;
+        private Boolean changeAllowed;
+    }
+
+    @Getter
+    @Setter
+    public static class Slice {
+
+        private String origin;
+        private String destination;
+        private String duration;
+
+        private List<Segment> segments;
+    }
+
+    @Getter
+    @Setter
+    public static class Segment {
+
+        private AirlineDetail airlineDetail;
+
         private String flightNumber;
+
+        private String departureTime;
+        private String arrivalTime;
 
         private String origin;
         private String destination;
 
-        private String departureTime;
-        private String arrivalTime;
-        private String duration;
-
         private String cabinClass;
+    }
 
-        private String totalPrice;
-        private String currency;
+    @Getter
+    @Setter
+    public static class AirlineDetail {
+        private String logo;
+        private String name;
+        private String iataCode;
+    }
 
-        private Boolean refundable;
-        private Boolean changeAllowed;
+    @Getter
+    @Setter
+    public static class PassengerSummary {
+        private int adults;
+        private int children;
+        private int infants;
     }
 }
