@@ -1,20 +1,34 @@
 package com.flyway.search;
 
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import com.flyway.common.ApiResponse;
+import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/api/flights")
+@RequiredArgsConstructor
 public class SearchController {
 
     private final SearchService searchService;
 
-    public  SearchController(SearchService searchService){
-        this.searchService = searchService;
-    }
-    @PostMapping("/api/flights/search")
-    public SearchResponseDTO searchFlights(@RequestBody SearchRequestDTO requestBody) {
-        return this.searchService.searchFlights(requestBody);
-    }
+@PostMapping("/search")
+public ResponseEntity<ApiResponse<List<SearchResponseDTO.FlightOffer>>> searchFlights(
+        @RequestBody SearchRequestDTO request) {
+
+    SearchResponseDTO result = searchService.searchFlights(request);
+
+    ApiResponse<List<SearchResponseDTO.FlightOffer>> response =
+            ApiResponse.<List<SearchResponseDTO.FlightOffer>>builder()
+                    .success(true)
+                    .message("Flights fetched successfully")
+                    .data(result.getOffers())   // 👈 return only array
+                    .errorCode(null)
+                    .build();
+
+    return ResponseEntity.ok(response);
+}
 }
