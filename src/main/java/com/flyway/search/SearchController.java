@@ -26,7 +26,6 @@ public ResponseEntity<ApiResponse<List<SearchResponseDTO.FlightOffer>>> searchFl
                     .success(true)
                     .message("Flights fetched successfully")
                     .data(result.getOffers())   // 👈 return only array
-                    .errorCode(null)
                     .build();
 
     return ResponseEntity.ok(response);

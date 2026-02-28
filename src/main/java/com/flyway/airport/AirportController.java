@@ -35,7 +35,6 @@ public class AirportController {
                         .success(true)
                         .message("Airports fetched successfully")
                         .data(airports)
-                        .errorCode(null)
                         .build();
 
         return ResponseEntity.ok(response);
