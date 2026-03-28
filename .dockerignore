@@ -1,0 +1,21 @@
+# Gradle
+.gradle
+build
+
+# Local IDE files
+.idea
+*.iml
+.vscode
+
+# OS files
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Logs
+*.log
+
+# Node (if any)
+node_modules

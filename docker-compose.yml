@@ -1,21 +1,41 @@
-version: "3.9"
-
 services:
-  db:
+  flyway-db:
     image: postgres:16
-    container_name: flywaytravels_db
-    restart: unless-stopped
-
+    container_name: flyway-db
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: securedaccess
-
     ports:
-      - "1234:5432"
-
+      - "6969:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  flyway-api:
+    container_name: flyway-api
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - flyway-db
+    env_file:
+      - .env
+
+  flyway-web:
+    container_name: flyway-web
+    build: ../flyway-web
+    ports:
+      - "3000:3000"
+    depends_on:
+      - flyway-api
+
+  # flyway-admin:
+  #   container_name: flyway-admin
+  #   build: ../flyway-admin
+  #   ports:
+  #     - "3001:3000"
+  #   depends_on:
+  #     - flyway-api
 
 volumes:
   postgres_data:
