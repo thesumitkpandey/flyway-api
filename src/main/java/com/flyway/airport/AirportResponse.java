@@ -7,7 +7,7 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class AirportResponseDTO {
+public class AirportResponse {
     private String cityName;
     private String airportName;
     private String iataCode;

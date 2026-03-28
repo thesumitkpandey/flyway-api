@@ -22,21 +22,9 @@ public class AirportController {
     }
 
     @GetMapping("/api/airports/search")
-    public ResponseEntity<ApiResponse<List<AirportResponseDTO>>> searchAirports(
+    public ResponseEntity<ApiResponse<List<AirportResponse>>> searchAirports(
             @RequestParam String keyword
     ) {
-
-        log.info("Searching airports for keyword: {}", keyword);
-
-        List<AirportResponseDTO> airports = airportService.searchAirports(keyword);
-
-        ApiResponse<List<AirportResponseDTO>> response =
-                ApiResponse.<List<AirportResponseDTO>>builder()
-                        .success(true)
-                        .message("Airports fetched successfully")
-                        .data(airports)
-                        .build();
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(this.airportService.searchAirports(keyword));
     }
 }

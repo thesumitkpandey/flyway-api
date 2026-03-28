@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import com.flyway.common.ApiResponse;
 import com.flyway.exception.CustomException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,24 +21,39 @@ public class AirportService {
         this.airportRepository = airportRepository;
     }
 
-    public List<AirportResponseDTO> searchAirports(String keyword) {
+    public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new CustomException(
                     "INVALID_SEARCH",
                     "Invalid Search Keyword",
                     HttpStatus.BAD_REQUEST);
         }
-        List<AirportEntity> airportResults = airportRepository.search(keyword);
 
-        List<AirportResponseDTO> airports = new ArrayList<>();
-        for (AirportEntity airport : airportResults) {
-            AirportResponseDTO dto = new AirportResponseDTO();
-            dto.setAirportName(airport.getAirportName());
-            dto.setIataCode(airport.getIataCode());
-            dto.setCityName(airport.getCityName());
-            airports.add(dto);
+        List<AirportEntity> airportResults =
+                airportRepository.findByIataCodeContainingIgnoreCase(keyword);
+
+        if(airportResults.size() ==0){
+            airportResults = airportRepository.findByCityNameContainingIgnoreCase(keyword);
         }
-        return airports;
-    }
 
+        if(airportResults.size() ==0){
+            airportResults = airportRepository.findByAirportNameContainingIgnoreCase(keyword);
+        }
+
+        List<AirportResponse> airports = new ArrayList<>();
+
+        for (AirportEntity airport : airportResults) {
+            AirportResponse airportResponse = new AirportResponse();
+            airportResponse.setAirportName(airport.getAirportName());
+            airportResponse.setIataCode(airport.getIataCode());
+            airportResponse.setCityName(airport.getCityName());
+            airports.add(airportResponse);
+        }
+
+        return ApiResponse.<List<AirportResponse>>builder()
+                .success(true)
+                .message("Airports fetched successfully")
+                .data(airports)
+                .build();
+    }
 }
