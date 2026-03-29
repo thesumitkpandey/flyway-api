@@ -1,4 +1,4 @@
-package com.flyway.config;
+package com.flyway.common;
 import java.time.Duration;
 
 import org.springframework.beans.factory.annotation.Value;
