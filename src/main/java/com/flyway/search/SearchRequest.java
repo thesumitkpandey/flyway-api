@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SearchRequestDTO {
+public class SearchRequest {
 
     private TripType tripType;
 

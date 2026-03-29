@@ -21,20 +21,20 @@ public class SearchService {
         this.duffelWebClient = duffelWebClient;
     }
 
-    public SearchResponseDTO searchFlights(SearchRequestDTO request) {
+    public SearchResponse searchFlights(SearchRequest request) {
 
-        SupplierSearchRequestDTO supplierPayload = createSupplierRequestPayload(request);
+        SupplierSearchRequest supplierPayload = createSupplierRequestPayload(request);
 
         try {
 
-            SupplierSearchResponseDTO supplierResponse = duffelWebClient
+            SupplierSearchResponse supplierResponse = duffelWebClient
                     .post()
                     .uri("/air/offer_requests")
                     .header("Duffel-Version", "v2")
                     .header("Content-Type", "application/json")
                     .bodyValue(supplierPayload)
                     .retrieve()
-                    .bodyToMono(SupplierSearchResponseDTO.class)
+                    .bodyToMono(SupplierSearchResponse.class)
                     .block();
 
             return mapToInternalResponse(supplierResponse);
@@ -50,7 +50,7 @@ public class SearchService {
         }
     }
 
-    public SupplierSearchRequestDTO createSupplierRequestPayload(SearchRequestDTO request) {
+    public SupplierSearchRequest createSupplierRequestPayload(SearchRequest request) {
 
         if (request.getSegments() == null || request.getSegments().isEmpty()) {
             throw new CustomException(
@@ -59,17 +59,17 @@ public class SearchService {
                     HttpStatus.BAD_REQUEST);
         }
 
-        SupplierSearchRequestDTO supplierRequest = new SupplierSearchRequestDTO();
-        SupplierSearchRequestDTO.Data data = new SupplierSearchRequestDTO.Data();
+        SupplierSearchRequest supplierRequest = new SupplierSearchRequest();
+        SupplierSearchRequest.Data data = new SupplierSearchRequest.Data();
 
-        List<SupplierSearchRequestDTO.Slice> slices = new ArrayList<>();
-        List<SupplierSearchRequestDTO.Passenger> passengers = new ArrayList<>();
+        List<SupplierSearchRequest.Slice> slices = new ArrayList<>();
+        List<SupplierSearchRequest.Passenger> passengers = new ArrayList<>();
 
         java.time.LocalDate today = java.time.LocalDate.now();
 
         for (int i = 0; i < request.getSegments().size(); i++) {
 
-            SearchRequestDTO.FlightSegment segment = request.getSegments().get(i);
+            SearchRequest.FlightSegment segment = request.getSegments().get(i);
 
             if (segment.getDateOfJourney().isBefore(today)) {
                 throw new CustomException(
@@ -89,7 +89,7 @@ public class SearchService {
                 }
             }
 
-            SupplierSearchRequestDTO.Slice slice = new SupplierSearchRequestDTO.Slice();
+            SupplierSearchRequest.Slice slice = new SupplierSearchRequest.Slice();
             slice.setOrigin(segment.getOrigin());
             slice.setDestination(segment.getDestination());
             slice.setDeparture_date(segment.getDateOfJourney().toString());
@@ -97,9 +97,9 @@ public class SearchService {
             slices.add(slice);
         }
 
-        for (SearchRequestDTO.Passenger p : request.getPassengers()) {
+        for (SearchRequest.Passenger p : request.getPassengers()) {
 
-            SupplierSearchRequestDTO.Passenger passenger = new SupplierSearchRequestDTO.Passenger();
+            SupplierSearchRequest.Passenger passenger = new SupplierSearchRequest.Passenger();
             passenger.setType(p.getPassengerType().name().toLowerCase());
 
             passengers.add(passenger);
@@ -114,10 +114,10 @@ public class SearchService {
         return supplierRequest;
     }
 
-    private SearchResponseDTO mapToInternalResponse(SupplierSearchResponseDTO supplier) {
+    private SearchResponse mapToInternalResponse(SupplierSearchResponse supplier) {
 
-        SearchResponseDTO response = new SearchResponseDTO();
-        List<SearchResponseDTO.FlightOffer> internalOffers = new ArrayList<>();
+        SearchResponse response = new SearchResponse();
+        List<SearchResponse.FlightOffer> internalOffers = new ArrayList<>();
 
         if (supplier == null
                 || supplier.getData() == null
@@ -131,7 +131,7 @@ public class SearchService {
 
             try {
 
-                SearchResponseDTO.FlightOffer internalOffer = new SearchResponseDTO.FlightOffer();
+                SearchResponse.FlightOffer internalOffer = new SearchResponse.FlightOffer();
 
                 internalOffer.setOfferId(offer.getId());
 
@@ -149,8 +149,8 @@ public class SearchService {
                 internalOffer.setExpiresAt(offer.getExpires_at());
 
                 // ---------------- Passenger Summary ----------------
-                SearchResponseDTO.PassengerSummary passengerSummary =
-                        new SearchResponseDTO.PassengerSummary();
+                SearchResponse.PassengerSummary passengerSummary =
+                        new SearchResponse.PassengerSummary();
 
                 int adults = 0;
                 int children = 0;
@@ -209,7 +209,7 @@ public class SearchService {
                 }
 
                 // ---------------- Slices ----------------
-                List<SearchResponseDTO.Slice> internalSlices = new ArrayList<>();
+                List<SearchResponse.Slice> internalSlices = new ArrayList<>();
 
                 if (offer.getSlices() != null) {
 
@@ -217,8 +217,8 @@ public class SearchService {
 
                         try {
 
-                            SearchResponseDTO.Slice internalSlice =
-                                    new SearchResponseDTO.Slice();
+                            SearchResponse.Slice internalSlice =
+                                    new SearchResponse.Slice();
 
                             if (slice.getOrigin() != null)
                                 internalSlice.setOrigin(slice.getOrigin().getIata_code());
@@ -229,7 +229,7 @@ public class SearchService {
                             internalSlice.setDuration(formatDuration(slice.getDuration()));
 
                             // ---------------- Segments ----------------
-                            List<SearchResponseDTO.Segment> internalSegments =
+                            List<SearchResponse.Segment> internalSegments =
                                     new ArrayList<>();
 
                             if (slice.getSegments() != null) {
@@ -238,15 +238,15 @@ public class SearchService {
 
                                     try {
 
-                                        SearchResponseDTO.Segment internalSegment =
-                                                new SearchResponseDTO.Segment();
+                                        SearchResponse.Segment internalSegment =
+                                                new SearchResponse.Segment();
 
                                         // Airline
                                         try {
                                             if (segment.getMarketing_carrier() != null) {
 
-                                                SearchResponseDTO.AirlineDetail airline =
-                                                        new SearchResponseDTO.AirlineDetail();
+                                                SearchResponse.AirlineDetail airline =
+                                                        new SearchResponse.AirlineDetail();
 
                                                 airline.setName(
                                                         segment.getMarketing_carrier().getName());

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class SearchResponseDTO {
+public class SearchResponse {
 
     private List<FlightOffer> offers;
 

@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SupplierSearchRequestDTO {
+public class SupplierSearchRequest {
 
     private Data data;
 
