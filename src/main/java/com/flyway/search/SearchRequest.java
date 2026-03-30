@@ -1,78 +1,23 @@
 package com.flyway.search;
-
-import java.time.LocalDate;
+import lombok.Data;
 import java.util.List;
+import java.time.LocalDate;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
+@Data
 public class SearchRequest {
-
-    private TripType tripType;
-
-    private CabinClass cabinClass;
-
-    private List<FlightSegment> segments;
-
+    private String cabinClass;
+    private List<Slice> slice;
     private List<Passenger> passengers;
 
-    @Getter
-    @Setter
-    public static class FlightSegment {
-
+    @Data
+    public static class Slice {
         private String origin;
         private String destination;
-        private LocalDate dateOfJourney;
+        private LocalDate departureDate;
     }
 
-    @Getter
-    @Setter
+    @Data
     public static class Passenger {
-        private PassengerType passengerType;
-    }
-
-
-    public enum TripType {
-        ONE_WAY,
-        ROUND_TRIP,
-        MULTI_CITY
-    }
-
-    public enum CabinClass {
-        ECONOMY,
-        PREMIUM_ECONOMY,
-        BUSINESS,
-        FIRST
-    }
-
-    public enum PassengerType {
-        ADULT,
-        CHILD,
-        INFANT
+        private LocalDate bornOn;
     }
 }
-
-//Example
-// {
-//   "tripType": "ROUND_TRIP",
-//   "cabinClass": "BUSINESS",
-//   "segments": [
-//     {
-//       "origin": "NYC",
-//       "destination": "ATL",
-//       "dateOfJourney": "2026-03-01"
-//     },
-//     {
-//       "origin": "ATL",
-//       "destination": "NYC",
-//       "dateOfJourney": "2026-03-10"
-//     }
-//   ],
-//   "passengers": [
-//     {
-//       "passengerType": "ADULT"
-//     }
-//   ]
-// }
