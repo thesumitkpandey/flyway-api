@@ -24,15 +24,14 @@ public class SearchService {
 
     public ApiResponse<List<SearchResponse.FlightOffer>> searchFlights(SearchRequest request) {
 
-        // ✅ VALIDATIONS (ALL HERE)
-
-        if (request.getSlice() == null || request.getSlice().isEmpty()) {
+        log.info("search request: {}", request);
+        if (request.getSlices() == null || request.getSlices().isEmpty()) {
             throw new CustomException("INVALID_SLICE", "At least one flight slice is required", HttpStatus.BAD_REQUEST);
         }
 
         LocalDate today = LocalDate.now();
-        for (int i = 0; i < request.getSlice().size(); i++) {
-            var s = request.getSlice().get(i);
+        for (int i = 0; i < request.getSlices().size(); i++) {
+            var s = request.getSlices().get(i);
             if (s.getDepartureDate().isBefore(today)) {
                 throw new CustomException("INVALID_DATE", "Departure date cannot be in past", HttpStatus.BAD_REQUEST);
             }
@@ -58,8 +57,7 @@ public class SearchService {
                 throw new CustomException(
                         "INVALID_CABIN_CLASS",
                         "This is not a valid cabin class",
-                        HttpStatus.BAD_REQUEST
-                );
+                        HttpStatus.BAD_REQUEST);
         }
 
         SupplierSearchRequest supplierPayload = createSupplierRequestPayload(request, cabinClassMapped);
@@ -89,13 +87,13 @@ public class SearchService {
     }
 
     private SupplierSearchRequest createSupplierRequestPayload(SearchRequest request,
-                                                               String cabinClassMapped) {
+            String cabinClassMapped) {
 
         SupplierSearchRequest supplierRequest = new SupplierSearchRequest();
         SupplierSearchRequest.Data data = new SupplierSearchRequest.Data();
 
         List<SupplierSearchRequest.Slice> slices = new ArrayList<>();
-        for (var s : request.getSlice()) {
+        for (var s : request.getSlices()) {
             SupplierSearchRequest.Slice slice = new SupplierSearchRequest.Slice();
             slice.setOrigin(s.getOrigin());
             slice.setDestination(s.getDestination());
@@ -170,7 +168,8 @@ public class SearchService {
     }
 
     private String formatDuration(String isoDuration) {
-        if (isoDuration == null) return null;
+        if (isoDuration == null)
+            return null;
         try {
             Duration d = Duration.parse(isoDuration);
             return d.toHours() + "h " + (d.toMinutes() % 60) + "m";
