@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/flights")
@@ -15,7 +16,7 @@ public class SearchController {
 
     @PostMapping("/search")
     public ResponseEntity<ApiResponse<List<SearchResponse.FlightOffer>>> searchFlights(
-            @RequestBody SearchRequest request) {
+            @Valid @RequestBody SearchRequest request) {
         return ResponseEntity.ok(this.searchService.searchFlights(request));
     }
 }
