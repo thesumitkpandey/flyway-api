@@ -36,6 +36,7 @@ public class SearchRequest {
         @NotBlank(message = "Destination is required")
         private String destination;
 
+        
         @NotNull(message = "Departure date is required")
         @FutureOrPresent(message = "Departure date cannot be in the past")
         private LocalDate departureDate;
