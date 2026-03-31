@@ -26,14 +26,14 @@ public class SearchService {
 
         log.info("search request: {}", request);
         if (request.getSlices() == null || request.getSlices().isEmpty()) {
-            throw new CustomException("INVALID_SLICE", "At least one flight slice is required", HttpStatus.BAD_REQUEST);
+            throw new CustomException("At least one flight slice is required", HttpStatus.BAD_REQUEST);
         }
 
         LocalDate today = LocalDate.now();
         for (int i = 0; i < request.getSlices().size(); i++) {
             var s = request.getSlices().get(i);
             if (s.getDepartureDate().isBefore(today)) {
-                throw new CustomException("INVALID_DATE", "Departure date cannot be in past", HttpStatus.BAD_REQUEST);
+                throw new CustomException("Departure date cannot be in past", HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -55,7 +55,6 @@ public class SearchService {
                 break;
             default:
                 throw new CustomException(
-                        "INVALID_CABIN_CLASS",
                         "This is not a valid cabin class",
                         HttpStatus.BAD_REQUEST);
         }
@@ -82,7 +81,7 @@ public class SearchService {
 
         } catch (Exception ex) {
             log.error("Supplier call failed", ex);
-            throw new CustomException("SUPPLIER_ERROR", "Failed to fetch flight offers", HttpStatus.BAD_GATEWAY);
+            throw new CustomException("Failed to fetch flight offers", HttpStatus.BAD_GATEWAY);
         }
     }
 

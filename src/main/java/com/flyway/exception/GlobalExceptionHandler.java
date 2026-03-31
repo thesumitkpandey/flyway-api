@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
     // 1. Handle Business Exceptions (Explicitly log the cause)
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ApiResponse<Object>> handleCustomException(CustomException ex) {
-        log.warn("Business Exception: {} - {}", ex.getErrorCode(), ex.getMessage());
+        log.warn("Business Exception: {}", ex.getMessage());
 
         ApiResponse<Object> response = ApiResponse.builder()
                 .success(false)
