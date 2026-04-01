@@ -1,5 +1,6 @@
 package com.flyway.search;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flyway.common.ApiResponse;
 import com.flyway.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
@@ -8,57 +9,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class SearchService {
 
     private final WebClient duffelWebClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SearchService(WebClient duffelWebClient) {
         this.duffelWebClient = duffelWebClient;
     }
 
     public ApiResponse<List<SearchResponse.FlightOffer>> searchFlights(SearchRequest request) {
-
-        log.info("search request: {}", request);
-        if (request.getSlices() == null || request.getSlices().isEmpty()) {
-            throw new CustomException("At least one flight slice is required", HttpStatus.BAD_REQUEST);
-        }
-
-        LocalDate today = LocalDate.now();
-        for (int i = 0; i < request.getSlices().size(); i++) {
-            var s = request.getSlices().get(i);
-            if (s.getDepartureDate().isBefore(today)) {
-                throw new CustomException("Departure date cannot be in past", HttpStatus.BAD_REQUEST);
-            }
-        }
-
-        // ✅ CABIN CLASS MAPPING + VALIDATION
-        String cabinClassMapped;
-
-        switch (request.getCabinClass().toLowerCase()) {
-            case "economy":
-                cabinClassMapped = "economy";
-                break;
-            case "premiumeconomy":
-                cabinClassMapped = "premium_economy";
-                break;
-            case "business":
-                cabinClassMapped = "business";
-                break;
-            case "first":
-                cabinClassMapped = "first";
-                break;
-            default:
-                throw new CustomException(
-                        "This is not a valid cabin class",
-                        HttpStatus.BAD_REQUEST);
-        }
-
+        String cabinClassMapped = mapCabinClass(request.getCabinClass());
         SupplierSearchRequest supplierPayload = createSupplierRequestPayload(request, cabinClassMapped);
 
         try {
@@ -71,109 +38,113 @@ public class SearchService {
                     .bodyToMono(SupplierSearchResponse.class)
                     .block();
 
-            List<SearchResponse.FlightOffer> offers = mapToInternalOffers(supplierResponse);
+
+            List<SearchResponse.FlightOffer> internalOffers = mapToInternalResponse(supplierResponse);
 
             return ApiResponse.<List<SearchResponse.FlightOffer>>builder()
                     .success(true)
                     .message("Flights fetched successfully")
-                    .data(offers)
+                    .data(internalOffers)
                     .build();
 
         } catch (Exception ex) {
-            log.error("Supplier call failed", ex);
+            log.error("Duffel API call failed", ex);
             throw new CustomException("Failed to fetch flight offers", HttpStatus.BAD_GATEWAY);
         }
     }
 
-    private SupplierSearchRequest createSupplierRequestPayload(SearchRequest request,
-            String cabinClassMapped) {
-
-        SupplierSearchRequest supplierRequest = new SupplierSearchRequest();
-        SupplierSearchRequest.Data data = new SupplierSearchRequest.Data();
-
-        List<SupplierSearchRequest.Slice> slices = new ArrayList<>();
-        for (var s : request.getSlices()) {
-            SupplierSearchRequest.Slice slice = new SupplierSearchRequest.Slice();
-            slice.setOrigin(s.getOrigin());
-            slice.setDestination(s.getDestination());
-            slice.setDeparture_date(s.getDepartureDate().toString());
-            slices.add(slice);
-        }
-
-        List<SupplierSearchRequest.Passenger> passengers = new ArrayList<>();
-        for (var p : request.getPassengers()) {
-            SupplierSearchRequest.Passenger passenger = new SupplierSearchRequest.Passenger();
-            passenger.setType("adult"); // can enhance later using age
-            passengers.add(passenger);
-        }
-
-        data.setCabin_class(cabinClassMapped);
-        data.setSlices(slices);
-        data.setPassengers(passengers);
-
-        supplierRequest.setData(data);
-        return supplierRequest;
-    }
-
-    private List<SearchResponse.FlightOffer> mapToInternalOffers(SupplierSearchResponse supplier) {
-        List<SearchResponse.FlightOffer> internalOffers = new ArrayList<>();
-
+    private List<SearchResponse.FlightOffer> mapToInternalResponse(SupplierSearchResponse supplier) {
         if (supplier == null || supplier.getData() == null || supplier.getData().getOffers() == null) {
-            return internalOffers;
+            return new ArrayList<>();
         }
 
-        for (var offer : supplier.getData().getOffers()) {
+        return supplier.getData().getOffers().stream().map(offer -> {
             SearchResponse.FlightOffer internalOffer = new SearchResponse.FlightOffer();
-
             internalOffer.setOfferId(offer.getId());
             internalOffer.setCurrency(offer.getTotal_currency());
-
-            if (offer.getTotal_amount() != null) {
-                internalOffer.setTotalAmount(Double.parseDouble(offer.getTotal_amount()));
+            internalOffer.setTotalAmount(offer.getTotal_amount() != null ? Double.parseDouble(offer.getTotal_amount()) : 0.0);
+            
+            // 1. Map Airline Detail from the 'owner' field
+            if (offer.getOwner() != null) {
+                SearchResponse.AirlineDetail airline = new SearchResponse.AirlineDetail();
+                airline.setName(offer.getOwner().getName());
+                airline.setIataCode(offer.getOwner().getIata_code());
+                airline.setLogo(offer.getOwner().getLogo_symbol_url());
+                internalOffer.setAirline(airline);
             }
 
-            List<SearchResponse.Slice> internalSlices = new ArrayList<>();
-
-            for (var s : offer.getSlices()) {
+            // 3. Map Slices and Segments
+            internalOffer.setSlices(offer.getSlices().stream().map(s -> {
                 SearchResponse.Slice internalSlice = new SearchResponse.Slice();
-
                 internalSlice.setOrigin(s.getOrigin().getIata_code());
                 internalSlice.setDestination(s.getDestination().getIata_code());
                 internalSlice.setDuration(formatDuration(s.getDuration()));
 
-                List<SearchResponse.Segment> internalSegments = new ArrayList<>();
+                internalSlice.setSegments(s.getSegments().stream().map(seg -> {
+                    SearchResponse.Segment internalSeg = new SearchResponse.Segment();
+                    internalSeg.setOrigin(seg.getOrigin().getIata_code());
+                    internalSeg.setDestination(seg.getDestination().getIata_code());
+                    internalSeg.setDepartureTime(seg.getDeparting_at());
+                    internalSeg.setArrivalTime(seg.getArriving_at());
+                    internalSeg.setFlightNumber(seg.getMarketing_carrier_flight_number());
+                    internalSeg.setAirlineName(seg.getMarketing_carrier() != null ? seg.getMarketing_carrier().getName() : null);
+                    
+                    // 4. Extract Cabin Class from passengers within segment
+                    if (seg.getPassengers() != null && !seg.getPassengers().isEmpty()) {
+                        internalSeg.setCabinClass(seg.getPassengers().get(0).getCabin_class());
+                    }
+                    
+                    return internalSeg;
+                }).collect(Collectors.toList()));
 
-                for (var seg : s.getSegments()) {
-                    SearchResponse.Segment is = new SearchResponse.Segment();
+                return internalSlice;
+            }).collect(Collectors.toList()));
 
-                    is.setOrigin(seg.getOrigin().getIata_code());
-                    is.setDestination(seg.getDestination().getIata_code());
-                    is.setDepartureTime(seg.getDeparting_at());
-                    is.setArrivalTime(seg.getArriving_at());
-                    is.setFlightNumber(seg.getMarketing_carrier_flight_number());
-
-                    internalSegments.add(is);
-                }
-
-                internalSlice.setSegments(internalSegments);
-                internalSlices.add(internalSlice);
-            }
-
-            internalOffer.setSlices(internalSlices);
-            internalOffers.add(internalOffer);
-        }
-
-        return internalOffers;
+            return internalOffer;
+        }).collect(Collectors.toList());
     }
 
+    private String mapCabinClass(String input) {
+        return switch (input.toLowerCase()) {
+            case "economy" -> "economy";
+            case "premiumeconomy" -> "premium_economy";
+            case "business" -> "business";
+            case "first" -> "first";
+            default -> throw new CustomException("Invalid cabin class", HttpStatus.BAD_REQUEST);
+        };
+    }
+
+
     private String formatDuration(String isoDuration) {
-        if (isoDuration == null)
-            return null;
+        if (isoDuration == null) return null;
         try {
             Duration d = Duration.parse(isoDuration);
-            return d.toHours() + "h " + (d.toMinutes() % 60) + "m";
+            return String.format("%dh %dm", d.toHours(), d.toMinutesPart());
         } catch (Exception e) {
             return isoDuration;
         }
+    }
+
+    private SupplierSearchRequest createSupplierRequestPayload(SearchRequest request, String cabinClassMapped) {
+        SupplierSearchRequest supplierRequest = new SupplierSearchRequest();
+        SupplierSearchRequest.Data data = new SupplierSearchRequest.Data();
+
+        data.setSlices(request.getSlices().stream().map(s -> {
+            SupplierSearchRequest.Slice slice = new SupplierSearchRequest.Slice();
+            slice.setOrigin(s.getOrigin());
+            slice.setDestination(s.getDestination());
+            slice.setDeparture_date(s.getDepartureDate().toString());
+            return slice;
+        }).collect(Collectors.toList()));
+
+        data.setPassengers(request.getPassengers().stream().map(p -> {
+            SupplierSearchRequest.Passenger passenger = new SupplierSearchRequest.Passenger();
+            passenger.setType("adult");
+            return passenger;
+        }).collect(Collectors.toList()));
+
+        data.setCabin_class(cabinClassMapped);
+        supplierRequest.setData(data);
+        return supplierRequest;
     }
 }
