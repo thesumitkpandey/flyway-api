@@ -24,7 +24,6 @@ public class AirportService {
     public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new CustomException(
-                    "INVALID_SEARCH",
                     "Invalid Search Keyword",
                     HttpStatus.BAD_REQUEST);
         }

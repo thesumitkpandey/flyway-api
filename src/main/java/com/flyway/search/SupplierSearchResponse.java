@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SupplierSearchResponseDTO {
+public class SupplierSearchResponse {
 
     private DataWrapper data;
 
