@@ -31,8 +31,6 @@ public class SearchService {
         try {
             SupplierSearchResponse supplierResponse = duffelWebClient.post()
                     .uri("/air/offer_requests")
-                    .header("Duffel-Version", "v2")
-                    .header("Content-Type", "application/json")
                     .bodyValue(supplierPayload)
                     .retrieve()
                     .bodyToMono(SupplierSearchResponse.class)
