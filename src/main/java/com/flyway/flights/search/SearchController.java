@@ -1,4 +1,4 @@
-package com.flyway.search;
+package com.flyway.flights.search;
 
 import com.flyway.common.ApiResponse;
 import lombok.RequiredArgsConstructor;

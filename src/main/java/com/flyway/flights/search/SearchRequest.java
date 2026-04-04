@@ -1,4 +1,4 @@
-package com.flyway.search;
+package com.flyway.flights.search;
 
 import lombok.Data;
 import java.util.List;

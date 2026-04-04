@@ -1,4 +1,4 @@
-package com.flyway.search;
+package com.flyway.flights.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flyway.common.ApiResponse;

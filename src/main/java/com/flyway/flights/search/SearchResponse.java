@@ -1,4 +1,4 @@
-package com.flyway.search;
+package com.flyway.flights.search;
 
 import lombok.Getter;
 import lombok.Setter;
