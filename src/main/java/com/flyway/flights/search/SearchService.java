@@ -1,4 +1,4 @@
-package com.flyway.search;
+package com.flyway.flights.search;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flyway.common.ApiResponse;
@@ -31,8 +31,6 @@ public class SearchService {
         try {
             SupplierSearchResponse supplierResponse = duffelWebClient.post()
                     .uri("/air/offer_requests")
-                    .header("Duffel-Version", "v2")
-                    .header("Content-Type", "application/json")
                     .bodyValue(supplierPayload)
                     .retrieve()
                     .bodyToMono(SupplierSearchResponse.class)
