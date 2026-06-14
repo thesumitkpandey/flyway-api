@@ -23,7 +23,7 @@ public class AirportService {
 
     public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            throw new CustomException(
+            throw new CustomException("INVALID_SEARCH_KEYWORD",
                     "Invalid Search Keyword",
                     HttpStatus.BAD_REQUEST);
         }
