@@ -14,40 +14,84 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SearchService {
 
-    private final WebClient duffelWebClient;
-    private final ObjectMapper objectMapper;
+        private final WebClient duffelWebClient;
+        private final ObjectMapper objectMapper;
 
-    public SearchService(WebClient duffelWebClient, ObjectMapper objectMapper) {
-        this.duffelWebClient = duffelWebClient;
-        this.objectMapper = objectMapper;
-    }
+        public SearchService(WebClient duffelWebClient, ObjectMapper objectMapper) {
+                this.duffelWebClient = duffelWebClient;
+                this.objectMapper = objectMapper;
+        }
 
-public ApiResponse<SearchResponse> search(SearchRequest request) {
+        public ApiResponse<List<SearchResponse>> search(SearchRequest request) {
 
-    SupplierSearchRequest supplierRequest =
-            objectMapper.convertValue(request, SupplierSearchRequest.class);
+                SupplierSearchRequest supplierRequest = objectMapper.convertValue(request, SupplierSearchRequest.class);
 
-    SupplierSearchResponse supplierResponse = duffelWebClient
-            .post()
-            .uri("/air/offer_requests")
-            .bodyValue(supplierRequest)
-            .retrieve()
-            .bodyToMono(SupplierSearchResponse.class)
-            .block();
+                SupplierSearchResponse supplierResponse = duffelWebClient
+                                .post()
+                                .uri("/air/offer_requests")
+                                .bodyValue(supplierRequest)
+                                .retrieve()
+                                .bodyToMono(SupplierSearchResponse.class)
+                                .block();
 
-    List<SearchResponse.Offer> offers = supplierResponse.getData()
-            .getOffers()
-            .stream()
-            .map(offer -> objectMapper.convertValue(offer, SearchResponse.Offer.class))
-            .toList();
+                List<SearchResponse> offers = supplierResponse.getData()
+                                .getOffers()
+                                .stream()
+                                .map(this::toOffer)
+                                .toList();
 
-    SearchResponse response = new SearchResponse();
-    response.setOffers(offers);
+                return ApiResponse.<List<SearchResponse>>builder()
+                                .success(true)
+                                .message("Fetched all flights")
+                                .data(offers)
+                                .build();
+        }
 
-    return ApiResponse.<SearchResponse>builder()
-            .success(true)
-            .message("Fetched all flights")
-            .data(response)
-            .build();
-}
+        private SearchResponse toOffer(SupplierSearchResponse.Offer offer) {
+
+                SupplierSearchResponse.OfferSlice slice = offer.getSlices().get(0);
+                SupplierSearchResponse.Segment segment = slice.getSegments().get(0);
+
+                return SearchResponse.builder()
+                                .id(offer.getId())
+                                .totalAmount(offer.getTotalAmount())
+                                .totalCurrency(offer.getTotalCurrency())
+
+                                .airlineCode(offer.getOwner().getIataCode())
+                                .airlineName(offer.getOwner().getName())
+                                .airlineLogo(offer.getOwner().getLogoSymbolUrl())
+
+                                .fareBrand(slice.getFareBrandName())
+
+                                .departureAirport(segment.getOrigin().getIataCode())
+                                .departureCity(segment.getOrigin().getCityName())
+                                .departureTime(segment.getDepartingAt())
+
+                                .arrivalAirport(segment.getDestination().getIataCode())
+                                .arrivalCity(segment.getDestination().getCityName())
+                                .arrivalTime(segment.getArrivingAt())
+
+                                .duration(slice.getDuration())
+                                .stops(Math.max(segment.getStops().size(), 0))
+
+                                .cabinClass(segment.getPassengers().isEmpty()
+                                                ? null
+                                                : segment.getPassengers().get(0).getCabinClassMarketingName())
+
+                                .refundable(
+                                                offer.getConditions() != null
+                                                                && offer.getConditions()
+                                                                                .getRefundBeforeDeparture() != null
+                                                                && offer.getConditions().getRefundBeforeDeparture()
+                                                                                .isAllowed())
+
+                                .changeable(
+                                                offer.getConditions() != null
+                                                                && offer.getConditions()
+                                                                                .getChangeBeforeDeparture() != null
+                                                                && offer.getConditions().getChangeBeforeDeparture()
+                                                                                .isAllowed())
+
+                                .build();
+        }
 }

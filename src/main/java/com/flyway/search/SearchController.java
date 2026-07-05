@@ -25,7 +25,7 @@ public class SearchController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<SearchResponse>> searchAirports(
+    public ResponseEntity<ApiResponse<List<SearchResponse>>> searchAirports(
         @Valid @RequestBody SearchRequest request
     ) {
         return ResponseEntity.ok(this.searchService.search(request));
