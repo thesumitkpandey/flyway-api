@@ -1,5 +1,6 @@
 package com.flyway.search;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -93,5 +94,18 @@ public class SearchService {
                                                                                 .isAllowed())
 
                                 .build();
+        }
+
+        public ApiResponse<List<String>> searchById(String id) {
+                List<String> offers = new ArrayList<>();
+                offers.add("offer1");
+                offers.add("offer2");
+                offers.add("offer3");
+                return ApiResponse.<List<String>>builder()
+                                .success(true)
+                                .message("Fetched all flights")
+                                .data(offers)
+                                .build();
+
         }
 }
