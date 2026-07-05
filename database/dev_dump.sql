@@ -40,6 +40,7 @@ ALTER TABLE public.airports OWNER TO postgres;
 --
 -- Name: airports_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
+ 
 
 CREATE SEQUENCE public.airports_id_seq
     START WITH 1
