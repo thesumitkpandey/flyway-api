@@ -34,8 +34,8 @@ public class SearchController {
     }
 
     @GetMapping("/search/{id}")
-    public ResponseEntity<ApiResponse<List<String>>> searchById(
-            @PathVariable String id) {
+    public ResponseEntity<ApiResponse<SearchDetailsResponse>> searchById(
+            @PathVariable("id") String id) {
 
         return ResponseEntity.ok(searchService.searchById(id));
     }
