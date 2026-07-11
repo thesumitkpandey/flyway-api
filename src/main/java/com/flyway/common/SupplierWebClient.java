@@ -20,13 +20,11 @@ public class SupplierWebClient {
         @Bean
         public WebClient duffelWebClient() {
 
-                // 🔥 Increase buffer size to 16MB
                 ExchangeStrategies strategies = ExchangeStrategies.builder()
                                 .codecs(configurer -> configurer.defaultCodecs()
                                                 .maxInMemorySize(100 * 1024 * 1024)) // 16MB
                                 .build();
 
-                // 🔥 Add timeouts (important in airline systems)
                 HttpClient httpClient = HttpClient.create()
                                 .responseTimeout(Duration.ofSeconds(30));
 

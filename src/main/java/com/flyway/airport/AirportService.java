@@ -23,19 +23,28 @@ public class AirportService {
 
     public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
-            throw new CustomException("INVALID_SEARCH_KEYWORD",
-                    "Invalid Search Keyword",
+            throw new CustomException(
+                    "INVALID_SEARCH_KEYWORD",
+                    "Search keyword cannot be empty.",
                     HttpStatus.BAD_REQUEST);
         }
 
-        List<AirportEntity> airportResults =
-                airportRepository.findByIataCodeContainingIgnoreCase(keyword);
+        keyword = keyword.trim();
 
-        if(airportResults.size() ==0){
+        if (!keyword.matches("^[A-Za-z]+$")) {
+            throw new CustomException(
+                    "INVALID_SEARCH_KEYWORD",
+                    "Search keyword must contain only alphabetic characters.",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        List<AirportEntity> airportResults = airportRepository.findByIataCodeContainingIgnoreCase(keyword);
+
+        if (airportResults.size() == 0) {
             airportResults = airportRepository.findByCityNameContainingIgnoreCase(keyword);
         }
 
-        if(airportResults.size() ==0){
+        if (airportResults.size() == 0) {
             airportResults = airportRepository.findByAirportNameContainingIgnoreCase(keyword);
         }
 
