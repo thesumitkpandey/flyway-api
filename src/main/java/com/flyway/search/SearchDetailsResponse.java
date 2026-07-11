@@ -19,34 +19,24 @@ import java.util.List;
 @Builder
 public class SearchDetailsResponse {
 
-    @JsonProperty("offer_id")
     private String offerId;
 
-    @JsonProperty("total_amount")
     private String totalAmount;
 
-    @JsonProperty("total_currency")
     private String totalCurrency;
 
-    @JsonProperty("base_amount")
     private String baseAmount;
 
-    @JsonProperty("tax_amount")
     private String taxAmount;
 
-    @JsonProperty("expires_at")
     private String expiresAt;
 
-    @JsonProperty("airline")
     private AirlineDetails airline;
 
-    @JsonProperty("slices")
     private List<SliceDetails> slices;
 
-    @JsonProperty("passengers")
     private List<PassengerDetails> passengers;
 
-    @JsonProperty("baggage_options")
     private List<BaggageDetails> baggageOptions;
 
     // ============================================================
@@ -56,13 +46,10 @@ public class SearchDetailsResponse {
     @Builder
     public static class AirlineDetails {
 
-        @JsonProperty("iata_code")
         private String iataCode;
 
-        @JsonProperty("name")
         private String name;
 
-        @JsonProperty("logo_url")
         private String logoUrl;
     }
 
@@ -73,28 +60,20 @@ public class SearchDetailsResponse {
     @Builder
     public static class SliceDetails {
 
-        @JsonProperty("origin")
         private AirportDetails origin;
 
-        @JsonProperty("destination")
         private AirportDetails destination;
 
-        @JsonProperty("departing_at")
         private String departingAt;
 
-        @JsonProperty("arriving_at")
         private String arrivingAt;
 
-        @JsonProperty("duration")
         private String duration;
 
-        @JsonProperty("flight_number")
         private String flightNumber;
 
-        @JsonProperty("cabin_class")
         private String cabinClass;
 
-        @JsonProperty("stops_count")
         private int stopsCount;
     }
 
@@ -105,13 +84,10 @@ public class SearchDetailsResponse {
     @Builder
     public static class AirportDetails {
 
-        @JsonProperty("iata_code")
         private String iataCode;
 
-        @JsonProperty("city_name")
         private String cityName;
 
-        @JsonProperty("name")
         private String name;
     }
 
@@ -122,10 +98,8 @@ public class SearchDetailsResponse {
     @Builder
     public static class PassengerDetails {
 
-        @JsonProperty("type")
         private String type;
 
-        @JsonProperty("age")
         private Integer age;
     }
 
@@ -136,13 +110,10 @@ public class SearchDetailsResponse {
     @Builder
     public static class BaggageDetails {
 
-        @JsonProperty("type")
         private String type;
 
-        @JsonProperty("amount")
         private String amount;
 
-        @JsonProperty("currency")
         private String currency;
     }
 }
