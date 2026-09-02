@@ -29,3 +29,13 @@ public class AirportEntity {
     private String countryName;
 
 }
+/*
+CREATE TABLE if not exists airports (
+	id bigserial NOT NULL,
+	iata_code varchar(20) NULL,
+	airport_name varchar(500) NULL,
+	city_name varchar(400) NULL,
+	country_name varchar(400) NULL,
+	CONSTRAINT airports_pkey PRIMARY KEY (id)
+);
+*/

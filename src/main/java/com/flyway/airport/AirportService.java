@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.flyway.common.ApiResponse;
+import com.flyway.entities.AirportEntity;
 import com.flyway.exception.ApiException;
 import com.flyway.exception.ErrorCode;
+import com.flyway.repos.AirportRepository;
 
 @Service
 public class AirportService {

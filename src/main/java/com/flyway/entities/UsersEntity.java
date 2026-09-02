@@ -1,6 +1,5 @@
 package com.flyway.entities;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +13,7 @@ public class UsersEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "email", nullable = false, length = 50)
     private String email;
@@ -28,10 +27,10 @@ public class UsersEntity {
 }
 
 /*
-crete table if not exists users (
-    id bigint primary key auto_increment,
-    email varchar(50) not null,
-    password varchar(200),
-    full_name varchar(100) not null,
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(200) NULL,
+    full_name VARCHAR(100) NOT NULL
 );
 */
