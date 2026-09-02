@@ -1,17 +1,13 @@
 package com.flyway.airport;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.flyway.common.ApiResponse;
-import com.flyway.exception.CustomException;
+import com.flyway.exception.ApiException;
+import com.flyway.exception.ErrorCode;
 
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
 public class AirportService {
 
@@ -22,46 +18,34 @@ public class AirportService {
     }
 
     public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            throw new CustomException(
-                    "INVALID_SEARCH_KEYWORD",
-                    "Search keyword cannot be empty.",
-                    HttpStatus.BAD_REQUEST);
+        if (keyword == null || keyword.isBlank()) {
+            throw new ApiException(ErrorCode.BAD_REQUEST, "Keyword cannot be empty");
         }
 
         keyword = keyword.trim();
+        List<AirportEntity> results = airportRepository.findByIataCodeIgnoreCase(keyword);
 
-        if (!keyword.matches("^[A-Za-z]+$")) {
-            throw new CustomException(
-                    "INVALID_SEARCH_KEYWORD",
-                    "Search keyword must contain only alphabetic characters.",
-                    HttpStatus.BAD_REQUEST);
+        if (results.isEmpty()) {
+            results = airportRepository.findByCityNameContainingIgnoreCase(keyword);
         }
 
-        List<AirportEntity> airportResults = airportRepository.findByIataCodeContainingIgnoreCase(keyword);
-
-        if (airportResults.size() == 0) {
-            airportResults = airportRepository.findByCityNameContainingIgnoreCase(keyword);
+        if (results.isEmpty()) {
+            results = airportRepository.findByAirportNameContainingIgnoreCase(keyword);
         }
 
-        if (airportResults.size() == 0) {
-            airportResults = airportRepository.findByAirportNameContainingIgnoreCase(keyword);
+        if (results.isEmpty()) {
+            throw new ApiException(ErrorCode.NOT_FOUND, "No airports found for the given keyword");
         }
 
-        List<AirportResponse> airports = new ArrayList<>();
+        List<AirportResponse> airports = results.stream().map(this::toResponse).toList();
+        return ApiResponse.success("Airports fetched successfully", airports);
+    }
 
-        for (AirportEntity airport : airportResults) {
-            AirportResponse airportResponse = new AirportResponse();
-            airportResponse.setAirportName(airport.getAirportName());
-            airportResponse.setIataCode(airport.getIataCode());
-            airportResponse.setCityName(airport.getCityName());
-            airports.add(airportResponse);
-        }
-
-        return ApiResponse.<List<AirportResponse>>builder()
-                .success(true)
-                .message("Airports fetched successfully")
-                .data(airports)
-                .build();
+    private AirportResponse toResponse(AirportEntity entity) {
+        AirportResponse response = new AirportResponse();
+        response.setAirportName(entity.getAirportName());
+        response.setCityName(entity.getCityName());
+        response.setIataCode(entity.getIataCode());
+        return response;
     }
 }

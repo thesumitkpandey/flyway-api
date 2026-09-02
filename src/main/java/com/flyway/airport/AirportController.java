@@ -2,19 +2,16 @@ package com.flyway.airport;
 
 import java.util.List;
 
-import com.flyway.common.ApiResponse;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.extern.slf4j.Slf4j;
+import com.flyway.common.ApiResponse;
 
-@Slf4j
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/airports")
 public class AirportController {
 
     private final AirportService airportService;
@@ -23,10 +20,9 @@ public class AirportController {
         this.airportService = airportService;
     }
 
-    @GetMapping("/airports/search")
+    @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<AirportResponse>>> searchAirports(
-            @RequestParam("keyword") String keyword
-    ) {
-        return ResponseEntity.ok(this.airportService.searchAirports(keyword));
+            @RequestParam("keyword") String keyword) {
+        return ResponseEntity.ok(airportService.searchAirports(keyword));
     }
 }
