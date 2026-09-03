@@ -24,6 +24,9 @@ public class UsersEntity {
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
+    @Column(name = "auth_token", nullable = true, length = 500)
+    private String authToken;
+
 }
 
 /*
@@ -31,6 +34,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(200) NULL,
-    full_name VARCHAR(100) NOT NULL
+    full_name VARCHAR(100) NOT NULL,
+    auth_token VARCHAR(500) NULL
 );
 */
