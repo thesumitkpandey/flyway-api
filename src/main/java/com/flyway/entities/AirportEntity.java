@@ -14,7 +14,7 @@ public class AirportEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "iata_code", nullable = false, length = 20)
     private String iataCode;
@@ -31,7 +31,7 @@ public class AirportEntity {
 }
 /*
 CREATE TABLE if not exists airports (
-	id bigserial NOT NULL,
+	id serial NOT NULL,
 	iata_code varchar(20) NULL,
 	airport_name varchar(500) NULL,
 	city_name varchar(400) NULL,
