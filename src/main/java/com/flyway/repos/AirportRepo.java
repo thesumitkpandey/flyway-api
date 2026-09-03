@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.flyway.entities.AirportEntity;
 
 @Repository
-public interface AirportRepository extends JpaRepository<AirportEntity, Long> {
+public interface AirportRepo extends JpaRepository<AirportEntity, Long> {
 
    List<AirportEntity> findByIataCodeIgnoreCase(String iataCode);
 

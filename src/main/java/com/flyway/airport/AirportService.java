@@ -8,14 +8,14 @@ import com.flyway.common.ApiResponse;
 import com.flyway.entities.AirportEntity;
 import com.flyway.exception.ApiException;
 import com.flyway.exception.ErrorCode;
-import com.flyway.repos.AirportRepository;
+import com.flyway.repos.AirportRepo;
 
 @Service
 public class AirportService {
 
-    private final AirportRepository airportRepository;
+    private final AirportRepo airportRepository;
 
-    public AirportService(AirportRepository airportRepository) {
+    public AirportService(AirportRepo airportRepository) {
         this.airportRepository = airportRepository;
     }
 

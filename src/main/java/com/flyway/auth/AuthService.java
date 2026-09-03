@@ -1,5 +1,5 @@
 package com.flyway.auth;
 
-public class AuthController {
+public class AuthService {
     
 }
