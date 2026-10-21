@@ -14,12 +14,12 @@ public class ApiResponse<T> {
 
     private final boolean success;
     private final String message;
-    private final T data;
+    private final T results;
 
     public static <T> ApiResponse<T> success(T data) {
         return ApiResponse.<T>builder()
                 .success(true)
-                .data(data)
+                .results(data)
                 .build();
     }
 
@@ -27,7 +27,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .success(true)
                 .message(message)
-                .data(data)
+                .results(data)
                 .build();
     }
 }
