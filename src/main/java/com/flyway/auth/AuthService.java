@@ -1,5 +1,8 @@
 package com.flyway.auth;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -44,13 +47,10 @@ public class AuthService {
         user.setFullName(request.getFullName().trim());
         user = usersRepository.save(user);
 
-        AuthResponse data = new AuthResponse();
-        data.setId(user.getId());
-        data.setEmail(user.getEmail());
-        data.setFullName(user.getFullName());
-
-        return ApiResponse.success("Signup successful", data);
+        return ApiResponse.success("Signup successful", null);
     }
+
+
 
     public ApiResponse<AuthResponse> signin(SigninRequest request) {
         if (request.getEmail() == null || request.getEmail().isBlank()) {
@@ -79,32 +79,32 @@ public class AuthService {
         data.setFullName(user.getFullName());
         data.setToken(token);
 
-        return ApiResponse.success("Signin successful", data);
+        return ApiResponse.success("Signin successful", List.of(data));
     }
 
 
-    public ApiResponse<AuthResponse> forgetPassword(ForgetPasswordRequest request) {
-        if (request.getEmail() == null || request.getEmail().isBlank()) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "Email cannot be empty");
-        }
-        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
-            throw new ApiException(ErrorCode.BAD_REQUEST, "New password cannot be empty");
-        }
+    // public ApiResponse<AuthResponse> forgetPassword(ForgetPasswordRequest request) {
+    //     if (request.getEmail() == null || request.getEmail().isBlank()) {
+    //         throw new ApiException(ErrorCode.BAD_REQUEST, "Email cannot be empty");
+    //     }
+    //     if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+    //         throw new ApiException(ErrorCode.BAD_REQUEST, "New password cannot be empty");
+    //     }
 
-        String email = request.getEmail().trim().toLowerCase();
+    //     String email = request.getEmail().trim().toLowerCase();
 
-        UsersEntity user = usersRepository.findByEmailIgnoreCase(email)
-                .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No account found with this email"));
+    //     UsersEntity user = usersRepository.findByEmailIgnoreCase(email)
+    //             .orElseThrow(() -> new ApiException(ErrorCode.NOT_FOUND, "No account found with this email"));
 
-        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        user.setAuthToken(null);
-        user = usersRepository.save(user);
+    //     user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+    //     user.setAuthToken(null);
+    //     user = usersRepository.save(user);
 
-        AuthResponse data = new AuthResponse();
-        data.setId(user.getId());
-        data.setEmail(user.getEmail());
-        data.setFullName(user.getFullName());
+    //     AuthResponse data = new AuthResponse();
+    //     data.setId(user.getId());
+    //     data.setEmail(user.getEmail());
+    //     data.setFullName(user.getFullName());
 
-        return ApiResponse.success("Password updated successfully", data);
-    }
+    //     return ApiResponse.success("Password updated successfully", data);
+    // }
 }

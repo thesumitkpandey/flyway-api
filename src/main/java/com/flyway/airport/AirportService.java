@@ -19,7 +19,7 @@ public class AirportService {
         this.airportRepository = airportRepository;
     }
 
-    public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
+    public ApiResponse<AirportResponse> searchAirports(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Keyword cannot be empty");
         }

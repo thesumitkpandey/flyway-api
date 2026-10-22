@@ -30,8 +30,8 @@ public class AuthController {
 
 
     //Add forget password otp later
-    @PostMapping("/forget-password")
-    public ResponseEntity<ApiResponse<AuthResponse>> forgetPassword(@RequestBody ForgetPasswordRequest request) {
-        return ResponseEntity.ok(authService.forgetPassword(request));
-    }
+    // @PostMapping("/forget-password")
+    // public ResponseEntity<ApiResponse<AuthResponse>> forgetPassword(@RequestBody ForgetPasswordRequest request) {
+    //     return ResponseEntity.ok(authService.forgetPassword(request));
+    // }
 }

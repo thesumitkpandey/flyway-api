@@ -1,4 +1,7 @@
+
 package com.flyway.common;
+
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
@@ -14,20 +17,22 @@ public class ApiResponse<T> {
 
     private final boolean success;
     private final String message;
-    private final T results;
+    private final List<T> results;
 
-    public static <T> ApiResponse<T> success(T data) {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .results(data)
-                .build();
-    }
+    public static <T> ApiResponse<T> success(
+            String message, List<T> data) {
 
-    public static <T> ApiResponse<T> success(String message, T data) {
         return ApiResponse.<T>builder()
                 .success(true)
                 .message(message)
                 .results(data)
+                .build();
+    }
+
+    public static ApiResponse<Void> success(String message) {
+        return ApiResponse.<Void>builder()
+                .success(true)
+                .message(message)
                 .build();
     }
 }
