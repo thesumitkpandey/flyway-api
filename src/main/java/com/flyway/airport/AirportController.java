@@ -21,7 +21,7 @@ public class AirportController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<AirportResponse>>> searchAirports(
+    public ResponseEntity<ApiResponse<AirportResponse>> searchAirports(
             @RequestParam("keyword") String keyword) {
         return ResponseEntity.ok(airportService.searchAirports(keyword));
     }

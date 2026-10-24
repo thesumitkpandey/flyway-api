@@ -10,6 +10,8 @@ public enum ErrorCode {
     NOT_FOUND("NOT_FOUND", "This content is not available", HttpStatus.NOT_FOUND),
     BAD_REQUEST("BAD_REQUEST", "The request is invalid", HttpStatus.BAD_REQUEST),
     VALIDATION_ERROR("VALIDATION_ERROR", "Validation failed", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED("UNAUTHORIZED", "Invalid credentials", HttpStatus.UNAUTHORIZED),
+    CONFLICT("CONFLICT", "Resource already exists", HttpStatus.CONFLICT),
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "An unexpected error occurred", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;

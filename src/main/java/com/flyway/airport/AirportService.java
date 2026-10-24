@@ -5,19 +5,21 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.flyway.common.ApiResponse;
+import com.flyway.entities.AirportEntity;
 import com.flyway.exception.ApiException;
 import com.flyway.exception.ErrorCode;
+import com.flyway.repos.AirportRepo;
 
 @Service
 public class AirportService {
 
-    private final AirportRepository airportRepository;
+    private final AirportRepo airportRepository;
 
-    public AirportService(AirportRepository airportRepository) {
+    public AirportService(AirportRepo airportRepository) {
         this.airportRepository = airportRepository;
     }
 
-    public ApiResponse<List<AirportResponse>> searchAirports(String keyword) {
+    public ApiResponse<AirportResponse> searchAirports(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             throw new ApiException(ErrorCode.BAD_REQUEST, "Keyword cannot be empty");
         }

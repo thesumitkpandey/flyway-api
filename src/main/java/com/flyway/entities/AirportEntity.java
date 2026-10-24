@@ -1,4 +1,4 @@
-package com.flyway.airport;
+package com.flyway.entities;
 
 
 import jakarta.persistence.*;
@@ -14,7 +14,7 @@ public class AirportEntity {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "iata_code", nullable = false, length = 20)
     private String iataCode;
@@ -29,3 +29,13 @@ public class AirportEntity {
     private String countryName;
 
 }
+/*
+CREATE TABLE if not exists airports (
+	id serial NOT NULL,
+	iata_code varchar(20) NULL,
+	airport_name varchar(500) NULL,
+	city_name varchar(400) NULL,
+	country_name varchar(400) NULL,
+	CONSTRAINT airports_pkey PRIMARY KEY (id)
+);
+*/
