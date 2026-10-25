@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.flyway.common.ApiResponse;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/flights/search")
 public class SearchController {
@@ -22,7 +24,7 @@ public class SearchController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<SupplierSearchResponse.Offer>> search(
-            @RequestBody SearchRequest request) {
+            @RequestBody @Valid SearchRequest request) {
     
         return ResponseEntity.ok(
                 searchService.searchFlights(request)
