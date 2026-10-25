@@ -21,9 +21,9 @@ public class SearchController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<SearchResponse.Offer>> search(
+    public ResponseEntity<ApiResponse<SupplierSearchResponse.Offer>> search(
             @RequestBody SearchRequest request) {
-
+    
         return ResponseEntity.ok(
                 searchService.searchFlights(request)
         );
